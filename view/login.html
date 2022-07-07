@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../public/css/style.css" />
+    <script>
+      let xhr = new XMLHttpRequest();
+      xhr.open("GET", "/shop/loginCheck", true);
+      xhr.onload = function () {
+        let data = JSON.parse(this.responseText);
+        console.log(data);
+        if (data.username != "" && data.password != "") {
+          window.location = "/shop";
+        }
+      };
+      xhr.send();
+    </script>
+    <title>Shop</title>
+  </head>
+  <body>
+    <div class="form-container">
+      <div class="form">
+        <form
+          class="form-main"
+          method="POST"
+          onsubmit="return loginFunction();"
+        >
+          <div class="header">
+            <h2>Login to Account</h2>
+          </div>
+          <div class="form-group">
+            <label>User Name...</label>
+            <br />
+
+            <input
+              type="text"
+              class="form-control"
+              name="u_name"
+              placeholder="User Name"
+              id="u_name"
+            />
+          </div>
+          <div class="form-group">
+            <label>Password...</label>
+            <br />
+            <input
+              type="password"
+              class="form-control"
+              name="password"
+              placeholder="Password"
+              id="password"
+            />
+          </div>
+          <div class="form-group">
+            <input type="submit" class="form-control-btn" value="Login" />
+          </div>
+          <div class="error">
+            <p class="err" style="color: tomato"></p>
+          </div>
+          <div class="register-label">
+            <p>
+              Don't have an account <a href="/shop/register">Register here</a>
+            </p>
+            <br />
+            <hr />
+            <br />
+            <p>use <a href="/shop">Shop</a> Without login</p>
+          </div>
+        </form>
+      </div>
+    </div>
+    <script>
+      function loginFunction() {
+        let password = document.querySelector("#password").value;
+        let u_name = document.querySelector("#u_name").value;
+        if (password.length <= 0 || u_name.length <= 0) {
+          document.querySelector(".err").style.display = "block";
+          document.querySelector(".err").innerText = "All fields are required";
+          return false;
+        } else {
+          document.querySelector(".err").style.display = "none";
+          const xhr = new XMLHttpRequest();
+          xhr.setRequestHeader(
+            "Content-Type",
+            "application/x-www-form-urlencoded"
+          );
+          xhr.open(
+            "post",
+            `/shop/login?u_name=${u_name}&password=${password}`,
+            false
+          );
+          xhr.onload = function () {
+            console.log(this.responseText);
+          };
+          xhr.send();
+        }
+        return false;
+      }
+      let inputs = document.querySelectorAll(".form-control");
+      inputs.forEach((element) => {
+        element.addEventListener("input", () => {
+          if (element.value.length > 0) {
+            element.style.background = "#eee3";
+          } else {
+            element.style.background = "#fff";
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

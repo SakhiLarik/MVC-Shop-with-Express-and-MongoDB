@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../public/css/style.css" />
+    <!-- <script src="./product.js"></script> -->
+    <script>
+      let username = "",
+        password = "";
+      function loginCheck() {
+        let xhr = new XMLHttpRequest();
+        xhr.open("GET", "/shop/loginCheck", true);
+        xhr.onload = function () {
+          let data = JSON.parse(this.responseText);
+          console.log(data);
+          if (data.username != "" && data.password != "") {
+            username = data.username;
+            password = data.password;
+            document.querySelector(".login-btn").style.display = "none";
+            document.querySelector(".logout-btn").style.display = "block";
+            document.querySelector("span.user_name").innerText = data.username;
+          } else {
+            document.querySelector(".login-btn").style.display = "block";
+            document.querySelector(".logout-btn").style.display = "none";
+            document.querySelector("span.user_name").style.display = "none";
+          }
+        };
+        xhr.send();
+      }
+      loginCheck();
+
+      function productSet(p_name, p_id, _id, price, counts) {
+        let product = `
+        <div class="col-3">
+          <div class="product">
+            <div class="product-header">
+              <h3 class="product_name">${p_name}</h3>
+            </div>
+            <div class="product-body">
+              <div class="product-img">
+                <img
+                  src="../public/img/1.jpg"
+                  alt=""
+                  class="p-img img-full"
+                />
+              </div>
+              <div class="product-details">
+                <p>
+                  <span>
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                    Incidunt libero, fugiat tenetur voluptatum possimus
+                    praesentium nesciunt quasi cupiditate.
+                  </span>
+                </p>
+                <p>
+                  Price :
+                  <span>Rs. ${price}</span>
+                </p>
+                <p>
+                  Purchases :
+                  <span>${counts} </span>
+                </p>
+              </div>
+            </div>
+            <div class="product-footer">
+              <div class="btns">
+                <button type="button" class="purchase">Purchase</button>
+                <button type="button" class="add_to_cart" onclick="addToCart('${p_id}','${price}','${p_name}','${username}','${password}')">
+                  Add to cart
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        `;
+        return product;
+      }
+
+      function loadProduct() {
+        let xhr = new XMLHttpRequest();
+        xhr.open("GET", "/shop/product/", true);
+        xhr.onload = function () {
+          let data = JSON.parse(this.responseText);
+          data.forEach((item) => {
+            let product = productSet(
+              item.p_name,
+              item.p_id,
+              item._id,
+              item.price,
+              item.purchaseCounts
+            );
+            document.querySelector(".setProducts").innerHTML += product;
+          });
+        };
+        xhr.send();
+      }
+      loadProduct();
+      function addToCart(p_id, price, p_name, user, pass) {
+        if (user == "" || pass == "") {
+          window.location = "shop/login";
+        } else {
+          let xhr = new XMLHttpRequest();
+          xhr.open(
+            "get",
+            `/shop/addtocart?p_id=${p_id}&price=${price}&p_name=${p_name}&user=${user}`,
+            true
+          );
+          xhr.onload = function () {
+            if(this.responseText == "added"){
+              alert("Product Added Successfully");
+            }
+            else{
+              alert("Product Already Added");
+            }
+            console.log(this.responseText);
+          };
+          xhr.send();
+        }
+      }
+    </script>
+    <title>Shop</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="head">
+          <h1>Express Shop</h1>
+        </div>
+        <div class="left">
+          <a href="/shop/login" class="login-btn">Login</a>
+          <a href="/shop/logout" class="logout-btn">
+            Logout
+            <span class="user_name"></span
+          ></a>
+        </div>
+        <div class="left">
+          <a href="/shop/cart">Cart</a>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      <br />
+      <div class="body">
+        <div class="shop-area">
+          <div class="row setProducts"></div>
+        </div>
+      </div>
+      <br /><br /><br />
+    </div>
+  </body>
+</html>
